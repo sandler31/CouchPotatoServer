@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import threading
 from couchpotato.core.logger import CPLog
 from couchpotato.core.media.movie.providers.automation.base import Automation
 from .telegramapi import TelegramApi
@@ -19,8 +20,13 @@ class Telegram(Automation):
         """
         Create the telegramapi communication object, and call super
         """
-        self.telegram_api = TelegramApi(self.conf('bot_token'))
         super(Telegram, self).__init__()
+
+        self.telegram_api = TelegramApi(self.conf('bot_token'))
+
+        # Start message poller thread
+        poller_thread = threading.Thread(target = self.messagePollThread)
+        poller_thread.start()
 
     def getIMDBids(self):
         """
